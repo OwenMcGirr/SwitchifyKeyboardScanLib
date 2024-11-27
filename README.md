@@ -48,7 +48,7 @@ class YourKeyView : View(), KeyboardSwitchifyNode {
 ```
 
 ### 2. KeyboardSwitchifyLink
-Use this class to capture and broadcast your keyboard's layout to Switchify:
+Use this class to broadcast your keyboard's layout and visibility to Switchify:
 
 ```kotlin
 class YourKeyboard : ViewGroup {
@@ -56,16 +56,42 @@ class YourKeyboard : ViewGroup {
     
     private fun initSwitchify() {
         switchifyLink = KeyboardSwitchifyLink(context)
-        // Call this whenever your keyboard layout changes
-        switchifyLink.captureAndBroadcastLayoutInfo(this)
+    }
+
+    // When keyboard becomes visible:
+    fun onKeyboardShow() {
+        switchifyLink.showKeyboard(this)
+    }
+
+    // When keyboard is hidden:
+    fun onKeyboardHide() {
+        switchifyLink.hideKeyboard()
+    }
+
+    // When keyboard layout changes (e.g., switching between QWERTY and numbers):
+    fun onLayoutChanged() {
+        if (isVisible) {
+            switchifyLink.captureAndBroadcastLayoutInfo(this)
+        }
     }
 }
 ```
 
 The library will automatically:
-1. Collect the positions and dimensions of all keyboard keys
-2. Broadcast this information to the Switchify app
-3. Enable Switchify to provide scanning functionality across your keyboard
+1. Scan the ViewGroup hierarchy for views implementing `KeyboardSwitchifyNode`
+2. Collect the positions and dimensions of all keyboard keys
+3. Broadcast this information to the Switchify app using LocalBroadcastManager
+
+### Broadcast Actions
+The library uses the following broadcast actions:
+- `com.enaboapps.ACTION_KEYBOARD_SHOW` - Sent when keyboard becomes visible, includes layout info
+- `com.enaboapps.ACTION_KEYBOARD_HIDE` - Sent when keyboard is hidden
+- `com.enaboapps.ACTION_KEYBOARD_LAYOUT_INFO` - Sent when keyboard layout changes
+
+### API Methods
+- `showKeyboard(keyboardView: ViewGroup)` - Call when keyboard becomes visible
+- `hideKeyboard()` - Call when keyboard is hidden
+- `captureAndBroadcastLayoutInfo(keyboardView: ViewGroup)` - Call when layout changes
 
 ## License
 

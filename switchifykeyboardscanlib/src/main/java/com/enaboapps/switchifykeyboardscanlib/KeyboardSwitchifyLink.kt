@@ -21,12 +21,23 @@ class KeyboardSwitchifyLink(private val context: Context) {
 
     companion object {
         const val ACTION_KEYBOARD_LAYOUT_INFO = "com.enaboapps.ACTION_KEYBOARD_LAYOUT_INFO"
+        const val ACTION_KEYBOARD_SHOW = "com.enaboapps.ACTION_KEYBOARD_SHOW"
+        const val ACTION_KEYBOARD_HIDE = "com.enaboapps.ACTION_KEYBOARD_HIDE"
         const val EXTRA_KEYBOARD_LAYOUT_INFO = "keyboardLayoutInfo"
     }
 
     fun captureAndBroadcastLayoutInfo(keyboardView: ViewGroup) {
         val layoutInfo = captureKeyboardLayoutInfo(keyboardView)
-        broadcastKeyboardLayoutInfo(layoutInfo)
+        broadcastLayoutInfo(layoutInfo)
+    }
+
+    fun showKeyboard(keyboardView: ViewGroup) {
+        val layoutInfo = captureKeyboardLayoutInfo(keyboardView)
+        broadcastKeyboardShow(layoutInfo)
+    }
+
+    fun hideKeyboard() {
+        broadcastKeyboardHide()
     }
 
     private fun captureKeyboardLayoutInfo(keyboardView: ViewGroup): KeyboardSwitchifyLayoutInfo {
@@ -54,13 +65,24 @@ class KeyboardSwitchifyLink(private val context: Context) {
         return KeyboardSwitchifyLayoutInfo(keys = keyboardSwitchifyInfos)
     }
 
-    private fun broadcastKeyboardLayoutInfo(layoutInfo: KeyboardSwitchifyLayoutInfo) {
+    private fun broadcastLayoutInfo(layoutInfo: KeyboardSwitchifyLayoutInfo) {
         val jsonLayoutInfo = Gson().toJson(layoutInfo)
         val intent = Intent(ACTION_KEYBOARD_LAYOUT_INFO).apply {
             putExtra(EXTRA_KEYBOARD_LAYOUT_INFO, jsonLayoutInfo)
         }
-        println(jsonLayoutInfo)
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
     }
 
+    private fun broadcastKeyboardShow(layoutInfo: KeyboardSwitchifyLayoutInfo) {
+        val jsonLayoutInfo = Gson().toJson(layoutInfo)
+        val intent = Intent(ACTION_KEYBOARD_SHOW).apply {
+            putExtra(EXTRA_KEYBOARD_LAYOUT_INFO, jsonLayoutInfo)
+        }
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+    }
+
+    private fun broadcastKeyboardHide() {
+        val intent = Intent(ACTION_KEYBOARD_HIDE)
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent)
+    }
 }
