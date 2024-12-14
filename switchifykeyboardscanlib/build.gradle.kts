@@ -49,8 +49,8 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 groupId = "com.github.enaboapps"
                 artifactId = "SwitchifyKeyboardScanLib"
-                version = "1.0.2"
-                
+                version = "1.1.0"
+
                 from(components["release"])
             }
         }
