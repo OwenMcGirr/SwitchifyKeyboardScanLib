@@ -36,12 +36,13 @@ Implement this interface in your keyboard key view class to make it scannable:
 
 ```kotlin
 class YourKeyView : View(), KeyboardSwitchifyNode {
-    override fun getPosition(): KeyboardNodePosition {
-        return KeyboardNodePosition(
+    override fun getSwitchifyKeyboardNodeInfo(): KeyboardNodeInfo {
+        return KeyboardNodeInfo(
             x = x,
             y = y,
             width = width.toFloat(),
-            height = height.toFloat()
+            height = height.toFloat(),
+            contentDescription = contentDescription?.toString() ?: "Key"
         )
     }
 }
@@ -79,19 +80,77 @@ class YourKeyboard : ViewGroup {
 
 The library will automatically:
 1. Scan the ViewGroup hierarchy for views implementing `KeyboardSwitchifyNode`
-2. Collect the positions and dimensions of all keyboard keys
+2. Collect the positions, dimensions, and content descriptions of all keyboard keys
 3. Broadcast this information to the Switchify app using LocalBroadcastManager
 
-### Broadcast Actions
-The library uses the following broadcast actions:
-- `com.enaboapps.ACTION_KEYBOARD_SHOW` - Sent when keyboard becomes visible, includes layout info
-- `com.enaboapps.ACTION_KEYBOARD_HIDE` - Sent when keyboard is hidden
-- `com.enaboapps.ACTION_KEYBOARD_LAYOUT_INFO` - Sent when keyboard layout changes
+## API Reference
 
-### API Methods
+### KeyboardSwitchifyNode Interface
+Interface that keyboard key views must implement to participate in Switchify scanning.
+
+#### Methods
+- `getSwitchifyKeyboardNodeInfo(): KeyboardNodeInfo` - Returns information about the node's position, dimensions, and content description
+
+### KeyboardNodeInfo
+Data class containing information about a keyboard key.
+
+#### Properties
+- `x: Float` - X coordinate of the key in pixels
+- `y: Float` - Y coordinate of the key in pixels
+- `width: Float` - Width of the key in pixels
+- `height: Float` - Height of the key in pixels
+- `contentDescription: String` - Content description for accessibility (required, non-null)
+
+### KeyboardSwitchifyLink
+Main class for capturing and broadcasting keyboard information.
+
+#### Constructor
+- `KeyboardSwitchifyLink(context: Context)` - Creates a new instance with the given context
+
+#### Methods
 - `showKeyboard(keyboardView: ViewGroup)` - Call when keyboard becomes visible
 - `hideKeyboard()` - Call when keyboard is hidden
 - `captureAndBroadcastLayoutInfo(keyboardView: ViewGroup)` - Call when layout changes
+
+#### Broadcast Actions
+The library uses the following broadcast actions:
+- `com.enaboapps.ACTION_KEYBOARD_LAYOUT_INFO` - Sent when keyboard layout changes
+- `com.enaboapps.ACTION_KEYBOARD_SHOW` - Sent when keyboard becomes visible, includes layout info
+- `com.enaboapps.ACTION_KEYBOARD_HIDE` - Sent when keyboard is hidden
+
+#### Broadcast Extras
+- `keyboardLayoutInfo` - JSON string containing the keyboard layout information in the following format:
+```json
+{
+  "keys": [
+    {
+      "x": 0.0,
+      "y": 0.0,
+      "width": 100.0,
+      "height": 50.0,
+      "contentDescription": "Letter A"
+    },
+    // ... more keys
+  ]
+}
+```
+
+## Best Practices
+1. Always provide meaningful content descriptions for your keyboard keys
+   - Use descriptive text that clearly identifies the key's function
+   - For letter keys, use format like "Letter A", "Letter B", etc.
+   - For special keys, use clear descriptions like "Backspace", "Shift", "Space"
+2. Call `captureAndBroadcastLayoutInfo` whenever your keyboard layout changes
+   - Layout switches (QWERTY to numbers)
+   - Orientation changes
+   - Any dynamic layout modifications
+3. Ensure proper show/hide handling
+   - Call `showKeyboard` when your keyboard becomes visible
+   - Call `hideKeyboard` when your keyboard is hidden
+   - Always update layout before showing keyboard
+4. Handle configuration changes
+   - Re-broadcast layout information after configuration changes
+   - Maintain proper keyboard state during transitions
 
 ## License
 

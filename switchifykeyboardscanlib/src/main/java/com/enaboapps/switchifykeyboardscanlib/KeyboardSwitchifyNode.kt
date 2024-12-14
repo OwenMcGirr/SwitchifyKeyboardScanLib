@@ -5,23 +5,24 @@ package com.enaboapps.switchifykeyboardscanlib
  * Represents a key or interactive element in a keyboard layout that can participate in Switchify actions.
  * 
  * Implement this interface in your keyboard key class to enable Switchify functionality.
- * Each node should provide its position and dimensions through the [getPosition] method.
+ * Each node should provide its own implementation of [getSwitchifyKeyboardNodeInfo] to retrieve information about its position, dimensions, and other properties.
  */
 interface KeyboardSwitchifyNode {
     /**
-     * Retrieves the position and dimensions of this keyboard node.
+     * Retrieves the information about the node's position, dimensions, and other properties.
      *
-     * @return [KeyboardNodePosition] containing the x, y coordinates and dimensions of the node
+     * @return [KeyboardNodeInfo] containing the node's position, dimensions, and other properties
      */
-    fun getPosition(): KeyboardNodePosition
+    fun getSwitchifyKeyboardNodeInfo(): KeyboardNodeInfo
 }
 
 /**
- * Data class representing the position and dimensions of a keyboard node.
+ * Data class representing the position, dimensions, and other properties of a keyboard node.
  *
  * @property x The X coordinate of the node in pixels
  * @property y The Y coordinate of the node in pixels
  * @property width The width of the node in pixels
  * @property height The height of the node in pixels
+ * @property contentDescription The content description of the node
  */
-data class KeyboardNodePosition(val x: Float, val y: Float, val width: Float, val height: Float)
+data class KeyboardNodeInfo(val x: Float, val y: Float, val width: Float, val height: Float, val contentDescription: String)

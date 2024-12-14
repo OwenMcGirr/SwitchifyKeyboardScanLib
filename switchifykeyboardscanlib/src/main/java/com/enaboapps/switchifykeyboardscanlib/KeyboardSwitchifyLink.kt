@@ -7,28 +7,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.gson.Gson
 
 /**
- * Data class containing position and dimension information for a single keyboard key.
- *
- * @property x The X coordinate of the key in pixels
- * @property y The Y coordinate of the key in pixels
- * @property width The width of the key in pixels
- * @property height The height of the key in pixels
- */
-data class KeyboardSwitchifyInfo(
-    val x: Int,
-    val y: Int,
-    val width: Int,
-    val height: Int
-)
-
-/**
  * Data class representing the complete layout information of a keyboard.
  *
- * @property keys List of [KeyboardSwitchifyInfo] objects, each representing a key in the keyboard layout
+ * @property keys List of [KeyboardNodeInfo] objects, each representing a key in the keyboard layout
  */
-data class KeyboardSwitchifyLayoutInfo(
-    val keys: List<KeyboardSwitchifyInfo>
-)
+data class KeyboardSwitchifyLayoutInfo(val keys: List<KeyboardNodeInfo>)
 
 /**
  * Main class responsible for capturing and broadcasting keyboard layout information.
@@ -89,7 +72,7 @@ class KeyboardSwitchifyLink(private val context: Context) {
      * @return [KeyboardSwitchifyLayoutInfo] containing the captured layout information
      */
     private fun captureKeyboardLayoutInfo(keyboardView: ViewGroup): KeyboardSwitchifyLayoutInfo {
-        val keyboardSwitchifyInfos = mutableListOf<KeyboardSwitchifyInfo>()
+        val keyboardSwitchifyInfos = mutableListOf<KeyboardNodeInfo>()
 
         for (i in 0 until keyboardView.childCount) {
             val child = keyboardView.getChildAt(i)
@@ -97,16 +80,9 @@ class KeyboardSwitchifyLink(private val context: Context) {
                 // Recursive call for nested ViewGroup
                 keyboardSwitchifyInfos.addAll(captureKeyboardLayoutInfo(child).keys)
             } else if (child is KeyboardSwitchifyNode) {
-                // Add the node's position to the list
-                val position = child.getPosition()
-                keyboardSwitchifyInfos.add(
-                    KeyboardSwitchifyInfo(
-                        position.x.toInt(),
-                        position.y.toInt(),
-                        position.width.toInt(),
-                        position.height.toInt()
-                    )
-                )
+                // Add the node's information to the list
+                val nodeInfo = child.getSwitchifyKeyboardNodeInfo()
+                keyboardSwitchifyInfos.add(nodeInfo)
             }
         }
 
